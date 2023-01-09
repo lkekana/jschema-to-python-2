@@ -2,6 +2,12 @@ import sys
 from jschema_to_python.python_file_generator import PythonFileGenerator
 import jschema_to_python.utilities as util
 
+_TYPE_MAPPING = {
+    "string": "str",
+    "integer": "int",
+    "number": "float",
+    "boolean": "bool",
+}
 
 class ClassGenerator(PythonFileGenerator):
     def __init__(self, class_schema, class_name, code_gen_hints, output_directory):
@@ -29,11 +35,17 @@ class ClassGenerator(PythonFileGenerator):
         return self.make_output_file_path(class_module_name + ".py")
 
     def _write_class_declaration(self):
+        parent_type = "object"
+        if "type" in self.class_schema and type(self.class_schema["type"]) == str and self.class_schema["type"] in _TYPE_MAPPING:
+            parent_type = _TYPE_MAPPING[ self.class_schema["type"] ]
+        else:
+            # TODO: handle type unions in schema, where value would be list of type names, so we will need Py3 typings
+            pass
         print("import attr")
         print("")
         print("")  # The black formatter wants two blank lines here.
         print("@attr.s")
-        print("class " + self.class_name + "(object):")
+        print("class " + self.class_name + "(" + parent_type + "):")
 
     def _write_class_description(self):
         description = self.class_schema.get("description")
