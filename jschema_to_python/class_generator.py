@@ -42,6 +42,9 @@ class ClassGenerator(PythonFileGenerator):
             print("")  # The black formatter wants a blank line here.
 
     def _write_class_body(self):
+        if "properties" not in self.class_schema:
+            print("    pass")
+            return
         property_schemas = self.class_schema["properties"]
         if not property_schemas:
             print("    pass")
