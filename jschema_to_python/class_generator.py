@@ -9,6 +9,42 @@ _TYPE_MAPPING = {
     "boolean": "bool",
 }
 
+_KEYWORD_PROPS = {
+    "False": True,
+    "def": True,
+    "if": True,
+    "raise": True,
+    "None": True,
+    "del": True,
+    "import": True,
+    "return": True,
+    "True": True,
+    "elif": True,
+    "in": True,
+    "try": True,
+    "and": True,
+    "else": True,
+    "is": True,
+    "while": True,
+    "as": True,
+    "except": True,
+    "lambda": True,
+    "with": True,
+    "assert": True,
+    "finally": True,
+    "nonlocal": True,
+    "yield": True,
+    "break": True,
+    "for": True,
+    "not": True,
+    "class": True,
+    "from": True,
+    "or": True,
+    "continue": True,
+    "global": True,
+    "pass": True,
+}
+
 class ClassGenerator(PythonFileGenerator):
     def __init__(self, class_schema, class_name, code_gen_hints, output_directory):
         super(ClassGenerator, self).__init__(output_directory)
@@ -80,6 +116,8 @@ class ClassGenerator(PythonFileGenerator):
         python_property_name = self._make_python_property_name_from_schema_property_name(
             schema_property_name
         )
+        if python_property_name in _KEYWORD_PROPS:
+            python_property_name = "_" + python_property_name
         attrib = "".join(["    ", python_property_name, " = attr.ib("])
         if self._is_optional(schema_property_name):
             property_schema = self.class_schema["properties"][schema_property_name]
