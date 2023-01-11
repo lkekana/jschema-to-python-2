@@ -74,12 +74,12 @@ class ClassGenerator(PythonFileGenerator):
         parent_type = "object"
         if "type" in self.class_schema and type(self.class_schema["type"]) == str and self.class_schema["type"] in _TYPE_MAPPING:
             parent_type = _TYPE_MAPPING[ self.class_schema["type"] ]
+        elif "properties" not in self.class_schema:
+            # workaround in case of untyped/dynamic schema objects, such as .NET's dictionaries
+            parent_type = "dict"
         else:
             # TODO: handle type unions in schema, where value would be list of type names, so we will need Py3 typings
             pass
-        if "properties" not in self.class_schema:
-            # workaround in case of untyped/dynamic schema objects, such as .NET's dictionaries
-            parent_type = "dict"
         print("import attr")
         print("")
         print("")  # The black formatter wants two blank lines here.
