@@ -3,6 +3,7 @@ import os
 import jschema_to_python.utilities as util
 from jschema_to_python.init_file_generator import InitFileGenerator
 from jschema_to_python.class_generator import ClassGenerator
+from jschema_to_python.subclass_generator import SubclassGenerator
 
 
 class ObjectModelModuleGenerator:
@@ -13,11 +14,12 @@ class ObjectModelModuleGenerator:
         self.root_schema = self.read_schema(args.schema_path)
         self.code_gen_hints = self.read_code_gen_hints(args.hints_file_path)
         self.root_class_name = args.root_class_name
+        self.subclass_defs = ""
 
     def generate(self):
         util.create_directory(self.output_directory, self.force)
-        self.generate_root_class()
         self.generate_definition_classes()
+        self.generate_root_class()
         self.generate_init_file()
 
     def generate_init_file(self):
@@ -38,18 +40,34 @@ class ObjectModelModuleGenerator:
         )
         class_generator.generate()
 
+        root_class_path = class_generator.file_path
+        # append subclass definitions to root class file
+        with open(root_class_path, "a") as root_class_file:
+            root_class_file.write(self.subclass_defs)
+
     def generate_definition_classes(self):
         definition_schemas = self.root_schema.get("definitions")
+        subdefinitions = ""
         if definition_schemas:
             for key in definition_schemas:
-                self.generate_definition_class(key, definition_schemas[key])
+                subdefinitions += self.generate_definition_class(key, definition_schemas[key])
+        else:
+            definition_schemas = self.root_schema.get("$defs")
+            if definition_schemas:
+                for key in definition_schemas:
+                    subdefinitions += self.generate_definition_class(key, definition_schemas[key])
+        
+        if subdefinitions != "":
+            subdefinitions = "\n" + subdefinitions
+            self.subclass_defs = subdefinitions
 
     def generate_definition_class(self, definition_key, definition_schema):
         class_name = util.capitalize_first_letter(definition_key)
-        class_generator = ClassGenerator(
+        class_generator = SubclassGenerator(
             definition_schema, class_name, self.code_gen_hints, self.output_directory
         )
         class_generator.generate()
+        return class_generator.generated_string
 
     def read_schema(self, schema_path):
         if not os.path.exists(schema_path):
