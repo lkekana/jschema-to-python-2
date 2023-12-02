@@ -1,6 +1,6 @@
 import os
 
-from jschema_to_python import __version__
+from jschema_to_python_2 import __version__
 
 
 class PythonFileGenerator(object):

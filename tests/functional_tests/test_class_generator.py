@@ -1,6 +1,6 @@
 import pytest
-import jschema_to_python as js2p
-import jschema_to_python.class_generator as cg
+import jschema_to_python_2 as js2p
+import jschema_to_python_2.class_generator as cg
 
 
 def test_class_generation(tmp_path):

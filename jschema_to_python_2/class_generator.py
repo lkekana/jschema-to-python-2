@@ -1,10 +1,10 @@
 import sys
-from jschema_to_python.python_file_generator import PythonFileGenerator
-import jschema_to_python.utilities as util
+from jschema_to_python_2.python_file_generator import PythonFileGenerator
+import jschema_to_python_2.utilities as util
 
-
-class SubclassGenerator(object):
+class ClassGenerator(PythonFileGenerator):
     def __init__(self, class_schema, class_name, code_gen_hints, output_directory):
+        super(ClassGenerator, self).__init__(output_directory)
         self.class_schema = class_schema
         self.required_property_names = class_schema.get("required")
         if self.required_property_names:
@@ -25,21 +25,26 @@ class SubclassGenerator(object):
                 if property_schema.get("type") == "array" or property_schema.get("type") == "object":
                     if property_name not in self.required_property_names:
                         self.required_property_names.append(property_name)
-
+            
         self.class_name = class_name
         self.code_gen_hints = code_gen_hints
+        self.file_path = self._make_class_file_path()
         # self.object_frequency_table = util.make_frequency_table(self.class_schema, {})
         # self.object_frequency_table = dict(sorted(self.object_frequency_table.items(), key=lambda x: x[1], reverse=True))
-        self.generated_string = ""
 
-    def append_to_generated_string(self, string):
-        self.generated_string += string
-        self.generated_string += "\n"
+    def __del__(self):
+        sys.stdout = sys.__stdout__
 
     def generate(self):
-        self._write_class_declaration()
-        self._write_class_description()
-        self._write_class_body()
+        with open(self.file_path, "w") as sys.stdout:
+            self.write_generation_comment()
+            self._write_class_declaration()
+            self._write_class_description()
+            self._write_class_body()
+
+    def _make_class_file_path(self):
+        class_module_name = util.class_name_to_private_module_name(self.class_name)
+        return self.make_output_file_path(class_module_name + ".py")
 
     def _write_class_declaration(self):
         parent_type = "object"
@@ -51,25 +56,25 @@ class SubclassGenerator(object):
         else:
             # TODO: handle type unions in schema, where value would be list of type names, so we will need Py3 typings
             pass
-        #self.append_to_generated_string("import attr")
-        #self.append_to_generated_string("")
-        self.append_to_generated_string("")  # The black formatter wants two blank lines here.
-        self.append_to_generated_string("@attr.s")
-        self.append_to_generated_string("class " + self.class_name + "(" + parent_type + "):")
+        print("import attr")
+        print("")
+        print("")  # The black formatter wants two blank lines here.
+        print("@attr.s")
+        print("class " + self.class_name + "(" + parent_type + "):")
 
     def _write_class_description(self):
         description = self.class_schema.get("description")
         if description:
-            self.append_to_generated_string('    """' + description + '"""')
-            self.append_to_generated_string("")  # The black formatter wants a blank line here.
+            print('    """' + description + '"""')
+            print("")  # The black formatter wants a blank line here.
 
     def _write_class_body(self):
         if "properties" not in self.class_schema:
-            self.append_to_generated_string("    pass")
+            print("    pass")
             return
         property_schemas = self.class_schema["properties"]
         if not property_schemas:
-            self.append_to_generated_string("    pass")
+            print("    pass")
             return
 
         schema_property_names = sorted(property_schemas.keys())
@@ -79,12 +84,12 @@ class SubclassGenerator(object):
         if self.required_property_names:
             for schema_property_name in self.required_property_names:
                 attrib = self._make_attrib(schema_property_name)
-                self.append_to_generated_string(attrib)
+                print(attrib)
 
         for schema_property_name in schema_property_names:
             if self._is_optional(schema_property_name):
                 attrib = self._make_attrib(schema_property_name)
-                self.append_to_generated_string(attrib)
+                print(attrib)
 
     def _make_attrib(self, schema_property_name):
         python_property_name = self._make_python_property_name_from_schema_property_name(

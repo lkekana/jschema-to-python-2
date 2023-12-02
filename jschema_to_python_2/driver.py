@@ -1,7 +1,7 @@
 import argparse
 
-from jschema_to_python.object_model_module_generator import ObjectModelModuleGenerator
-from jschema_to_python import __version__
+from jschema_to_python_2.object_model_module_generator import ObjectModelModuleGenerator
+from jschema_to_python_2 import __version__
 
 
 def main():

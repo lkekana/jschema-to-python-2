@@ -1,5 +1,5 @@
 import pytest
-import jschema_to_python.class_generator as cg
+import jschema_to_python_2.class_generator as cg
 
 
 def test_make_attrib_for_required_property():

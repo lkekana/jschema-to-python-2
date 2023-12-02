@@ -1,6 +1,6 @@
 import sys
-from jschema_to_python.python_file_generator import PythonFileGenerator
-import jschema_to_python.utilities as util
+from jschema_to_python_2.python_file_generator import PythonFileGenerator
+import jschema_to_python_2.utilities as util
 
 
 class InitFileGenerator(PythonFileGenerator):

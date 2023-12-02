@@ -7,7 +7,7 @@ if not __package__:
     path = os.path.dirname(os.path.dirname(__file__))
     sys.path.insert(0, path)
 
-from jschema_to_python.driver import main as _main  # noqa
+from jschema_to_python_2.driver import main as _main  # noqa
 
 if __name__ == "__main__":
     sys.exit(_main())

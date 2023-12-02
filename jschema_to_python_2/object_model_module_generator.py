@@ -1,9 +1,9 @@
 import os
 
-import jschema_to_python.utilities as util
-from jschema_to_python.init_file_generator import InitFileGenerator
-from jschema_to_python.class_generator import ClassGenerator
-from jschema_to_python.subclass_generator import SubclassGenerator
+import jschema_to_python_2.utilities as util
+from jschema_to_python_2.init_file_generator import InitFileGenerator
+from jschema_to_python_2.class_generator import ClassGenerator
+from jschema_to_python_2.subclass_generator import SubclassGenerator
 
 
 class ObjectModelModuleGenerator:
